@@ -1,7 +1,4 @@
-# Git commands
+# Expensify App
+ Nothing special, just a basic app constructed as part of a React/Redux learning course. Currently in progress...
 
-git init 	- Create a new git repo
-git status 	- View changes to your project code
-git add 	- Add files to staging area
-git commit 	- Creates a new commit with files from staging area (-m "commit msg")
-git log 	- View recent commits
+ #More to come...

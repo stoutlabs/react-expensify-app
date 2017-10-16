@@ -8,11 +8,12 @@ export const addExpense = expense => ({
 });
 
 export const startAddExpense = (expenseData = {}) => {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const uid = getState().auth.uid;
     const { description = "", note = "", amount = 0, createdAt = 0 } = expenseData;
     const expense = { description, note, amount, createdAt };
     return database
-      .ref("expenses")
+      .ref(`users/${uid}/expenses`)
       .push(expense)
       .then(ref => {
         dispatch(
@@ -34,12 +35,42 @@ export const removeExpense = ({ id } = {}) => ({
   id
 });
 
+export const startRemoveExpense = ({ id } = {}) => {
+  return (dispatch, getState) => {
+    const uid = getState().auth.uid;
+    return database
+      .ref(`users/${uid}/expenses/${id}`)
+      .remove()
+      .then(() => {
+        dispatch(removeExpense({ id }));
+      })
+      .catch(e => {
+        console.log("error with startRemoveExpense");
+      });
+  };
+};
+
 // EDIT_EXPENSE
 export const editExpense = (id, updates) => ({
   type: "EDIT_EXPENSE",
   id,
   updates
 });
+
+export const startEditExpense = (id, updates) => {
+  return (dispatch, getState) => {
+    const uid = getState().auth.uid;
+    return database
+      .ref(`users/${uid}/expenses/${id}`)
+      .update(updates)
+      .then(() => {
+        dispatch(editExpense(id, updates));
+      })
+      .catch(e => {
+        console.log("error with startEditExpense");
+      });
+  };
+};
 
 // SET_EXPENSES
 export const setExpenses = expenses => ({
@@ -48,9 +79,10 @@ export const setExpenses = expenses => ({
 });
 
 export const startSetExpenses = () => {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const uid = getState().auth.uid;
     return database
-      .ref("expenses")
+      .ref(`users/${uid}/expenses`)
       .once("value")
       .then(snapshot => {
         const expenses = [];
@@ -65,20 +97,6 @@ export const startSetExpenses = () => {
       })
       .catch(e => {
         console.log("error with startSetExpenses promise", e);
-      });
-  };
-};
-
-export const startRemoveExpense = ({ id } = {}) => {
-  return dispatch => {
-    return database
-      .ref(`expenses/${id}`)
-      .remove()
-      .then(() => {
-        dispatch(removeExpense({ id }));
-      })
-      .catch(e => {
-        console.log("error with startRemoveExpense");
       });
   };
 };
